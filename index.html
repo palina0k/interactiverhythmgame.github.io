@@ -24,7 +24,7 @@
         header {
             text-align: center;
             padding: 40px 20px;
-            background: linear-gradient(135deg, #c3eec7 0%, #017108 100%);
+            background: linear-gradient(135deg, #82cff5 0%, #64cfa5 100%);
             color: white;
             border-radius: 10px;
             margin-bottom: 30px;
@@ -110,7 +110,8 @@
         }
 
         th {
-            background-color:  #017108b9;
+            /* background-color:  #017108b9; */
+            background: #64cfa5;
             color: white;
         }
 
@@ -174,13 +175,13 @@
     <!-- Project Description -->
     <section class="section" id="description">
         <h2>Project Description</h2>
-        <p>[TO-DO --- description of our interactive rhythm game]</p>
-        <!-- <ul class="feature-list">
-            <li><strong>Core Concept:</strong> </li>
-            <li><strong>Key Features:</strong> </li>
-            <li><strong>Hardware Components:</strong> </li>
-            <li><strong>User Interaction:</strong> </li>
-        </ul> -->
+        <p>Our final project is an interactive rhythm game that combines button-pressing mechanics of Guitar Hero with the motionbased gameplay of Beat Saber. 
+            This game is intended to challenge players to simultaneously press the correct buttons (0-9) on the
+            AT&T remote keypad while moving the Launch Pad in the correct direction (up/down/left/right), based on the visual cues the
+            OLED is displaying. To succeed at this game, the player must execute both actions correctly withing a “target region” to earn points.
+            We intend to create a cloud-connected leaderboard where the microcontroller updates the AWS IoT device shadow whenever a
+            player’s score is in the top 5, which will make Amazon SNS send an immediate email alert to us, the development team,
+            announcing the new top score.</p>
     </section>
 
     <!-- Design Section -->
@@ -192,10 +193,12 @@
         <div class="diagram-container">
             <div class="diagram-placeholder">
                 <img src="./images/irgstatediagram.png" alt="State Machine Diagram" width="100%" height="auto" >
-                <!-- Show the states and the transitions -->
             </div>
         </div>
-        <p> Our Interactive Rhythm Game's State Machine, displaying our major states and transitions that take the user from basic set up to the actual game to finally, the game over stage. </p>
+        <p> Our Interactive Rhythm Game's State Machine that displays our major states and transitions.
+            The user starts in set up, where they enter a nickname and select a mode from easy, medium, and hard.
+            Then they're taken to game, where they can score points based on correct inputs or increase the number of mistakes otherwise.
+            Finally, the user reaches the game over stage, where they're able to see their score but behind the scenes, their score gets compared against the leaderboard, which gets updated accordingly. </p>
         
         <!-- System Architecture -->
         <h3>System Architecture</h3>
@@ -324,6 +327,7 @@
     <section class="section" id="demo">
         <h2>Video Demo</h2>
         <div class="video-container">
+            <p>[TO-DO: add video, possibly move this to the top of page]</p>
             <!-- Option 1: YouTube embed (replace VIDEO_ID with YouTube video ID) -->
             <!-- <iframe src="https://www.youtube.com/embed/VIDEO_ID" 
                     title="Interactive Rhythm Game Demo"
