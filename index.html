@@ -62,7 +62,7 @@
 
         .video-container {
             position: relative;
-            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            padding-bottom: 56.25%;
             height: 0;
             overflow: hidden;
             max-width: 100%;
@@ -110,7 +110,6 @@
         }
 
         th {
-            /* background-color:  #017108b9; */
             background: #64cfa5;
             color: white;
         }
@@ -175,13 +174,15 @@
     <!-- Project Description -->
     <section class="section" id="description">
         <h2>Project Description</h2>
-        <p>Our final project is an interactive rhythm game that combines button-pressing mechanics of Guitar Hero with the motionbased gameplay of Beat Saber. 
-            This game is intended to challenge players to simultaneously press the correct buttons (0-9) on the
-            AT&T remote keypad while moving the Launch Pad in the correct direction (up/down/left/right), based on the visual cues the
-            OLED is displaying. To succeed at this game, the player must execute both actions correctly withing a “target region” to earn points.
-            We intend to create a cloud-connected leaderboard where the microcontroller updates the AWS IoT device shadow whenever a
-            player’s score is in the top 5, which will make Amazon SNS send an immediate email alert to us, the development team,
-            announcing the new top score.</p>
+        <p>Our final project is an interactive rhythm game that combines button-pressing mechanics of Guitar Hero with 
+            the motion-based gameplay of Beat Saber. This game is intended to challenge platers to simultaneously press 
+            the correct button (0-9) on the AT&T remote keypad while moving the joystick in the correct direction 
+            (Up/Down/Left/Right), based on the visual cues of the OLED display. To succeed at this game, the player must 
+            execute both actions correctly within a target region , which increases their score. There is a 
+            cloud-connected leaderboard where the microcontroller updates the AWS IoT device shadow whenever a player’s 
+            score is in the top 5. Furthermore, the development team (us) receives an immediate email alert with the new 
+            top score and the updated leaderboard via Amazon SNS. Additionally, the player can view the leaderboard; 
+            behind the scenes, the microcontroller requests the information from the shadow and displays it on OLED for the user.</p>
     </section>
 
     <!-- Design Section -->
@@ -195,10 +196,11 @@
                 <img src="./images/irgstatediagram.png" alt="State Machine Diagram" width="100%" height="auto" >
             </div>
         </div>
-        <p> Our Interactive Rhythm Game's State Machine that displays our major states and transitions.
-            The user starts in set up, where they enter a nickname and select a mode from easy, medium, and hard.
-            Then they're taken to game, where they can score points based on correct inputs or increase the number of mistakes otherwise.
-            Finally, the user reaches the game over stage, where they're able to see their score but behind the scenes, their score gets compared against the leaderboard, which gets updated accordingly. </p>
+        <p> The Interactive Rhythm Game's State Machine displays our major states and transitions.
+            The game is idle until the user wakes it up. Then, they must enter a nickname and select the mode from easy, medium, and hard.
+            Afterwars, they're taken to game loop, where they score points based on correct inputs or increase the number of mistakes otherwise.
+            Once the number of mistakes is exceeded, the user reaches the game over stage where they see their score. At the same time,
+             their score gets compared against the leaderboard, which gets updated accordingly. </p>
         
         <!-- System Architecture -->
         <h3>System Architecture</h3>
@@ -256,10 +258,11 @@
     <!-- Future Work -->
     <section class="section" id="future">
         <h2>Future Work</h2>
+        <p> To further enhance this project, we came up with a couple of ideas for additional features:</p>
         <ul>
-            <li>Integrating an audio output module so that the game is more immersive.</li>
-            <li>Creating a dynamic leaderboard website that gets updated in real-time.</li>
-            <li>Replacing the OLED display with a larger display such as hosting the game on a website and having the microcontroller interact with the site through AWS.</li>
+            <li>Displaying the player’s real time board tilt direction on the game screen so that it is more intuitive for them to match the target’s direction.</li>
+            <li>Integrating a speaker and a sound generating module to create a more immersive game, for example, by indicating correct or incorrect moves with a sound and not just a visual cue.</li>
+            <li>Hosting our dynamic leaderboard on a website as well, leveraging other features we can access through AWS.</li>
         </ul>
     </section>
 
@@ -327,19 +330,11 @@
     <section class="section" id="demo">
         <h2>Video Demo</h2>
         <div class="video-container">
-            <p>[TO-DO: add video, possibly move this to the top of page]</p>
-            <!-- Option 1: YouTube embed (replace VIDEO_ID with YouTube video ID) -->
-            <!-- <iframe src="https://www.youtube.com/embed/VIDEO_ID" 
+            <iframe src="https://www.youtube.com/embed/U7FKlCiuFLI?si=kxmmFpWSXZoxkxrF" 
                     title="Interactive Rhythm Game Demo"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                     allowfullscreen>
-            </iframe> -->
-            
-            <!-- Option 2: Direct video file -->
-            <!-- <video controls>
-                <source src="demo.mp4" type="video/mp4">
-                Your browser does not support the video tag.
-            </video> -->
+            </iframe>
         </div>
     </section>
 
