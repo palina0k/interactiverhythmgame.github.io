@@ -24,7 +24,7 @@
         header {
             text-align: center;
             padding: 40px 20px;
-            background: linear-gradient(135deg, #82cff5 0%, #64cfa5 100%);
+            background: linear-gradient(135deg, #64cfa5 0%, #017108 100%);
             color: white;
             border-radius: 10px;
             margin-bottom: 30px;
@@ -110,7 +110,7 @@
         }
 
         th {
-            background: #64cfa5;
+            background: #017108;
             color: white;
         }
 
@@ -184,6 +184,18 @@
             top score and the updated leaderboard via Amazon SNS. Additionally, the player can view the leaderboard; 
             behind the scenes, the microcontroller requests the information from the shadow and displays it on OLED for the user.</p>
     </section>
+    
+    <!-- Video Demo Section -->
+    <section class="section" id="demo">
+        <h2>Video Demo</h2>
+        <div class="video-container">
+            <iframe src="https://www.youtube.com/embed/U7FKlCiuFLI?si=kxmmFpWSXZoxkxrF" 
+                    title="Interactive Rhythm Game Demo"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+            </iframe>
+        </div>
+    </section>
 
     <!-- Design Section -->
     <section class="section" id="design">
@@ -196,11 +208,10 @@
                 <img src="./images/statemachinediagram.png" alt="State Machine Diagram" width="100%" height="auto" >
             </div>
         </div>
-        <p> The Interactive Rhythm Game's State Machine displays our major states and transitions.
+        <p>The Interactive Rhythm Game's State Machine displays our major states and transitions.
             The game is idle until the user wakes it up. Then, they must enter a nickname and select the mode from easy, medium, and hard.
             Afterwars, they're taken to game loop, where they score points based on correct inputs or increase the number of mistakes otherwise.
-            Once the number of mistakes is exceeded, the user reaches the game over stage where they see their score. At the same time,
-             their score gets compared against the leaderboard, which gets updated accordingly. </p>
+            Once the number of mistakes is exceeded, the user reaches the game over stage where they see their score. At the same time, their score gets compared against the leaderboard, which gets updated accordingly. </p>
         
         <!-- System Architecture -->
         <h3>System Architecture</h3>
@@ -209,32 +220,55 @@
                 <img src="./images/systemarchitecture.png" alt="System Architecture Diagram" width="100%" height="auto" >
             </div>
         </div>
-        <p><strong>Architecture Description:</strong> [TO-DO --- explanation of how each component fits together, things like details about communication protocols (SPI and I2C), data flow, and component interactions, etc.]</p>
+        <p>Sensor input is the main driving factor, as it is linked to all parts of the user interface and gameplay. 
+            The IR receiver communicates with the CC3200 Launchpad within all stages of the game, with button signals acting to interact with the user interface and play the game. 
+            The BMA222 accelerometer only interacts with the microcontroller during gameplay when button number and tilt direction must be correct to earn points. 
+            Lastly, the microcontroller connects to AWS for updating the leaderboard and sending a notification through email whenever a new high score is registered to the leaderboard.</p>
     </section>
 
     <!-- Implementation -->
     <section class="section" id="implementation">
         <h2>Implementation</h2>
         
-        <h3>Hardware Implementation [TO-DO]</h3>
-        <ul>
-            <li><strong>Microcontroller:</strong> [description/explanation]</li>
-            <li><strong>Sensors/Inputs:</strong> [description/explanation]</li>
-            <li><strong>Display:</strong> [description/explanation]</li>
-        </ul>
+        <h3>User Interface</h3>
+        <p>The user interface implements many different helper functions that interact with the OLED through SPI protocol and functions specified by Adafruit. 
+            These functions create a start screen, username input screen, mode selection screen, game loop, gave over score report, continue menu, and leaderboard. The start screen is simply an idle screen that prompts the user to press the [MUTE] button on the AT&T remote to start the game. 
+            This leads to the username input screen, which acts as a login interface, asking for a username. 
+            Then, the mode selection screen appears, showcasing the three difficulty levels and an option to view the leaderboard. 
+            Upon selecting a difficulty level, the OLED display then shows three different game play screens differing between the different difficulties. 
+            As difficulty increases, the game speed increases, target area where the action of pressing the button on the remote and tilting the microcontroller decreases, and number of allowed mistakes decreases. 
+            Button presses and microcontroller tilt are represented by circles that descend from the top of the OLED to the bottom. 
+            A streak count is used to provide a score multiplier, where every 10 streak rewards the player with 50 additional points. Upon making 3, 2, or 1 mistakes, the game loop finishes and the score and maximum streak is displayed. 
+            This then leads to an interface where the user can replay, choose a new difficulty level, view the leaderboard, or exit the game. Exiting the game leads back to the start screen. 
+            The leaderboard interface allows the user to cycle through the leaderboards for difficulties offered by the game. 
+            All interaction with the user interface on the OLED is done through button presses on the remote.</p>
         
-        <h3>Software Implementation [TO-DO]</h3>
-        <ul>
-            <li><strong>User Interface:</strong> [description/explanation]</li>
-            <li><strong>Game Loop:</strong> [description/explanation]</li>
-            <li><strong>Timing/Scoring:</strong> [description/explanation]</li>
-        </ul>
-        
-        <div class="diagram-container">
-            <div class="diagram-placeholder">
-                [Circuit Schematic --- recommended in our instructions, not required]
-            </div>
-        </div>
+        <h3>Sensor Inputs</h3>
+        <p>Our implementation for capturing and decoding IR signals is borrowed from our Lab 3 code. 
+            In this final project, we use the same GPIO_Handler() function, which is the interrupt handler function whenever the PIN 50 is triggered on a falling edge. 
+            The signal is captured and the pulse widths are stored in a buffer array. Once a Stop signal is captured, the buffer becomes ready to decode. 
+            All stages of the game use the buffer in a similar way: when it is ready, a decode_pulse() function is called, which iterates through the pulses and modifies a uint16 value representing the key. 
+            Then, this decoded value is compared across our target set in ProcessChar() and if there is a match, a non-NULL pointer to a char array is returned.
+            To implement accelerometer data decoding, we referred to the code from Lab 2. 
+            I2C communication protocol is necessary to communicate with the on-board accelerometer we are using. 
+            In brief, ProcessReadRegCommand() is an I2C register read helper function. 
+            First, it parses a command string that contains a device address, register offset and read length. 
+            Then, it performs the corresponding I2C write to register and read from register operations to retrieve the single byte of sensor data. 
+            The command string is how we request to read specifically y-axis and x-axis data. 
+            This function is utilized in the general getAccelerometerDirection() function. 
+            There, we specify the exact commands to read x- and y-axis registers from the accelerometer, then we scale the values to reduce sensitivity, and finally, we compare these values to determine the dominant axis of the title. Whichever axis shows greater tilt “wins”. 
+            There is also a threshold check to figure out the four directions (Up, Down, Left, Right) and return the character specifying the direction.</p>
+                    
+        <h3>Web Services - AWS</h3>
+        <p>To implement POST and GET for our final project, we referred to the code we had completed in Lab 4. Both http_post() and http_get() establish a TLS connection to AWS IoT to sync the leaderboard data. 
+            The http_post() function combines the current game state and the previously received shadow information, including top 5 scores and name for each mode, into a JSON message, then, it sends it as a HTTP POST request. 
+            The http_get() functions sends a HTTP GET request to retrieve the device shadow, then it uses a helper function to parse the response and repopulate the local leaderboard arrays. 
+            Both functions build the raw HTTP request strings, similarly to Lab 4, send them over a secure socket, and afterwards handle the received response before closing the TLS connection. 
+            The previously mentioned helper function, parse_shadow_response(), goes through the HTTP response http_get receives in order to extract the leaderboard information. 
+            First, we want to verify that “state” and “desired” fields exist in this response for a quick verification that the full shadow was received. 
+            Second, for each difficulty level the function sequentially finds the scores and names arrays, then it extracts the integers and strings. 
+            To prevent undefined behavior with local storage arrays, they are initialized to zero at the start. 
+            With the combination of these three functions, we implemented our real-time updated leaderboard that the user gets to view when interacting with the game and also what the developing team can review through their SNS email notification.</p>
     </section>
 
     <!-- Challenges -->
@@ -242,15 +276,33 @@
         <h2>Challenges</h2>
         
         <div class="challenge-card">
-            <h4>Challenge 1: [what was it]</h4>
-            <p><strong>Solution:</strong> [How did we fix it? If we didn't, what was attempted]</p>
+            <h4>User Interface</h4>
+            <p>Some challenges involved with the user interface involved drawing it and ensuring all lines were in the correct position. 
+                This involved trial and error to get correct. Another challenge encountered was determining when to show each screen and prevent button presses from interacting with certain screens that are not supposed to be currently interacted with nor displayed. 
+                To solve this problem, the different screens that would be displayed needed to have a Boolean variable assigned to them, allowing for only one screen to be displayed and interacted with at a time. 
+                This required the variable values to be dependent on each other, once one was assigned to be true, another would need to be assigned to be false. 
+                Conditional statements and control flow were utilized for the screens to be displayed on the OLED as expected.</p>
         </div>
         
         <div class="challenge-card">
-            <h4>Challenge 2: [what was it]</h4>
-            <p><strong>Solution:</strong> [How did we fix it? If we didn't, what was attempted]</p>
+            <h4>Sensor Inputs</h4>
+            <p>One challenge we encountered when implementing our game’s hit detection logic involved IR signal detection. 
+                Initially, our loop followed these high-level steps: set up the random target, update its y-location with the mode’s speed while the y-location has not reached the bottom of the OLED display, and on every iteration check if an IR signal has been detected. 
+                For debugging purposes, we set up some print statements that helped us understand what direction and what key got captured. 
+                What we noticed is that the button press and the direction were getting captured whenever any key was pressed, but the decoding of the pressed key was always incorrect (the buffer was populated with zeroes). 
+                It was very confusing since at any other stage of the game, the print statements were outputting correct IR signals. 
+                When reviewing our code from previous labs, we realized that we should try adding a function call to MAP_UtilsDelay() in the game loop, to let the key press correctly update the buffer. 
+                For some reason, this function didn’t eliminate the issue entirely, so we tried copying over and using the delay() function from oled_test.c (Lab 3). 
+                That function did help us eliminate the issue and our IR signal decoding inside of the game loop was working as intended.</p>
         </div>
-        <!-- Should add more as needed -->
+
+        <div class="challenge-card">
+            <h4>WebService - AWS</h4>
+            <p>When we were working on the implementation of the leaderboard page, we ran into an issue with parsing the JSON message, which represented the device shadow. 
+                The issue was that the names in a non-full leaderboard weren’t getting correctly parsed in our initial implementation, which made the updated shadow contain inaccurate information whenever the player beat a top score. 
+                Through testing we found that our parsing logic didn’t correctly grab strings from JSON. For context, strings in JSON must be surrounded by quotes (“”) and we accidentally kept double counting the end quote, which messed up how we parsed the strings when the leaderboard is not full. 
+                Once we corrected that, we got the expected behavior and our GET and POST correctly grabbed and updated the information in AWS IoT device shadow.</p>
+        </div>
 
     </section>
 
@@ -260,6 +312,7 @@
         <p> To further enhance this project, we came up with a couple of ideas for additional features:</p>
         <ul>
             <li>Displaying the player’s real time board tilt direction on the game screen so that it is more intuitive for them to match the target’s direction.</li>
+            <li>Increasing difficulty of the game by configuring multiple bubbles to be pressed within the target region at a time.</li>
             <li>Integrating a speaker and a sound generating module to create a more immersive game, for example, by indicating correct or incorrect moves with a sound and not just a visual cue.</li>
             <li>Hosting our dynamic leaderboard on a website as well, leveraging other features we can access through AWS.</li>
         </ul>
@@ -323,18 +376,6 @@
             </tbody>
         </table>
         <p><small>*The above costs are approximate and may vary</small></p>
-    </section>
-
-    <!-- Video Demo Section -->
-    <section class="section" id="demo">
-        <h2>Video Demo</h2>
-        <div class="video-container">
-            <iframe src="https://www.youtube.com/embed/U7FKlCiuFLI?si=kxmmFpWSXZoxkxrF" 
-                    title="Interactive Rhythm Game Demo"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowfullscreen>
-            </iframe>
-        </div>
     </section>
 
     <footer>
